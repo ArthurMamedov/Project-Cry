@@ -124,7 +124,7 @@ inline uint32_t GOST28147_89::join_4bits_to_32bits(uint8_t* blocks4b) {
 
 GOST28147_89::GOST28147_89(const char* key) {
     if (strlen(key) != 32) {
-        throw std::exception("Key length for GOST28147-89 must be 32 bytes long.");
+        throw std::runtime_error("Key length for GOST28147-89 must be 32 bytes long.");
     }
     split_256bits_to_32bits(key);
 }
@@ -132,7 +132,7 @@ GOST28147_89::GOST28147_89(const char* key) {
 
 void GOST28147_89::change_key(const char* key) {
     if (strlen(key) != 32) {
-        throw std::exception("Key length for GOST28147-89 must be 32 bytes long.");
+        throw std::runtime_error("Key length for GOST28147-89 must be 32 bytes long.");
     }
     split_256bits_to_32bits(key);
 }

@@ -1,3 +1,4 @@
+//A little test with a time machine...
 #include <iostream>
 #include <string>
 #include <conio.h>
@@ -73,7 +74,6 @@ void bad_message(const char* param) {
 	std::cout << param << std::endl;
 }
 
-
 int main(int argc, char** argv) {
 	//Cry encrypt file.txt AES key
 	// argv[1] = encrypt | decrypt | help
@@ -85,12 +85,11 @@ int main(int argc, char** argv) {
 	if (argc != 1 && !strcmp(argv[1], "help")) {
 		std::cout << help << std::endl;
 		return 0;
-	}
-	if (argc < 5) {
+	} else if (argc < 5) {
 		bad_message("Not enought arguments.");
 		return 0;
 	}
-	
+
 	try {
 		file_cryptor fl(factory::create(argv[argc - 2], argv[argc - 1]));
 		for (int p = 2; p < argc - 2; p++) {
@@ -103,15 +102,15 @@ int main(int argc, char** argv) {
 					TAKE_TIME(fl.decrypt_file, argv[p], time);
 					good_message(argv[p], false);
 				} else {
-					throw std::exception("Unknown mode.");
+					throw std::runtime_error("Unknown mode.");
 				}
 				std::cout << "\tTime spent: " << time << std::endl;
-			} catch (std::exception& ex) {
+			} catch (const std::exception& ex) {
 				bad_message(ex.what());
 			}
 		}
 	}
-	catch (std::exception& ex) {
+	catch (const std::exception& ex) {
 		bad_message(ex.what());
 	}
 

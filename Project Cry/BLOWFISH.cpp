@@ -32,7 +32,7 @@ inline void BLOWFISH::key_extension(const char* key) {
 	size_t key_size = strlen(key);
 
 	if (key_size > 56 || key_size < 4)
-		throw std::exception("Key's length must be bigger than 4 and less than 56 bytes.");
+		throw std::runtime_error("Key's length must be bigger than 4 and less than 56 bytes.");
 
 	xor_P_block_with_key(key, key_size);
 	key_encryption();
@@ -83,7 +83,7 @@ inline void BLOWFISH::round(uint32_t& block1, uint32_t& block2, const uint32_t& 
 
 
 void BLOWFISH::change_key(const char* new_key) {
-	throw std::exception("Not implemented yet...");
+	throw std::runtime_error("Not implemented yet...");
 }
 
 

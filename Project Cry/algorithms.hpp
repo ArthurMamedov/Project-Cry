@@ -5,11 +5,12 @@
 #include<future>
 #include<memory>
 
-__interface cryptor {
+class cryptor {
 public:
-	void encrypt(uint8_t block[48]);
-	void decrypt(uint8_t block[48]);
-	void change_key(const char* key);
+    virtual void encrypt(uint8_t block[48]) = 0;
+    virtual void decrypt(uint8_t block[48]) = 0;
+	virtual void change_key(const char* key) = 0;
+    virtual ~cryptor() = default;
 };
 
 
@@ -40,7 +41,7 @@ private:
 	inline uint8_t pol_mul(uint8_t f, uint8_t s);
 #pragma endregion
 #pragma region encryption
-	const uint8_t Sbox[16][16] = {
+	uint8_t Sbox[16][16] = {
 		{ 0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76 },
 		{ 0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0 },
 		{ 0xb7, 0xFd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15 },
@@ -69,7 +70,7 @@ private:
 	inline void split_key(const char* key, uint8_t first[16], uint8_t middle[9][16], uint8_t last[16]);
 #pragma endregion
 #pragma region decryption
-	const uint8_t inv_Sbox[16][16] = {
+    uint8_t inv_Sbox[16][16] = {
 		{ 0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb },
 		{ 0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb },
 		{ 0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e },
@@ -95,10 +96,10 @@ private:
 public:
 	AES() = delete;
 	AES(const char* key);
-	void encrypt(uint8_t block[48]);
-	void decrypt(uint8_t block[48]);
-	void change_key(const char* key);
-	~AES() = default;
+	void encrypt(uint8_t block[48]) override;
+	void decrypt(uint8_t block[48]) override;
+	void change_key(const char* key) override;
+	~AES();
 };
 
 
@@ -125,10 +126,10 @@ private:
 	};
 
 public:
-	void encrypt(uint8_t msg[48]);
-	void decrypt(uint8_t msg[48]);
+	void encrypt(uint8_t msg[48]) override;
+	void decrypt(uint8_t msg[48]) override;
 	GOST28147_89() = delete;
-	void change_key(const char* key);
+	void change_key(const char* key) override;
 	GOST28147_89(const char* key);
 	~GOST28147_89() = default;
 };
@@ -319,9 +320,9 @@ private:
     inline void round(uint32_t& block1, uint32_t& block2, const uint32_t& r_key);
     inline void join_32b_block(const uint32_t& right, const uint32_t& left, uint8_t block[8]);
 public:
-    void encrypt(uint8_t block[48]);
-    void decrypt(uint8_t block[48]);
-    void change_key(const char* new_key);
+    void encrypt(uint8_t block[48]) override;
+    void decrypt(uint8_t block[48]) override;
+    void change_key(const char* new_key) override;
     BLOWFISH(const char* key);
 };
 #pragma endregion
@@ -340,7 +341,7 @@ public:
             return std::make_shared<BLOWFISH>(key);
         }
 		else {
-			throw std::exception("Unknown crypting algorithm.");
+			throw std::runtime_error("Unknown crypting algorithm.");
 		}
 	}
 };

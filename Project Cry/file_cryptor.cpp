@@ -20,7 +20,7 @@ void file_cryptor::read_flag(std::ifstream& r) {
 	r.read((char*)flag, BLOCK_LENGTH);
 	crypting_algorithm->decrypt(flag);
 	if (strcmp((char*)flag, "ckecking_message_ckecking_message_ckecking_mess\0")) { //Not safe. Need to be changed to hash.
-		throw std::exception("Didn't manage to decrypt file. Wrong key or algorithm.");
+		throw std::runtime_error("Didn't manage to decrypt file. Wrong key or algorithm.");
 	}
 }
 
@@ -36,7 +36,7 @@ void file_cryptor::encrypt_file(const std::string& path_to_file) {
 	std::ifstream reader(path_to_file, std::ifstream::in | std::ifstream::binary);
 
 	if (!reader.is_open())
-		throw std::exception("Didn't manage to open the file.");
+		throw std::runtime_error("Didn't manage to open the file.");
 	
 	std::ofstream writer(path_to_file + ".enc", std::ofstream::out | std::ofstream::binary);
 
@@ -75,17 +75,17 @@ void file_cryptor::encrypt_file(const std::string& path_to_file) {
 
 void file_cryptor::decrypt_file(const std::string& path_to_file) {
 	if (path_to_file.find(".enc", path_to_file.size() - 4) == (size_t)-1)
-		throw std::exception(("File " + path_to_file + " hasn't been crypted.").c_str());
+		throw std::runtime_error(("File " + path_to_file + " hasn't been crypted.").c_str());
 
 	std::ifstream reader(path_to_file, std::ifstream::binary | std::ifstream::in);
 
 	if (!reader.is_open())
-		throw std::exception("Didn't manage to open the file.");
+		throw std::runtime_error("Didn't manage to open the file.");
 
 	try {
 		read_flag(reader);
 	}
-	catch (std::exception& ex) {
+	catch (const std::exception& ex) {
 		reader.close();
 		throw ex;
 	}

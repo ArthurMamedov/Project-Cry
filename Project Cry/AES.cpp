@@ -1,3 +1,4 @@
+//#include<iostream>
 #include<string>
 #include<future>
 #include"algorithms.hpp"
@@ -153,6 +154,10 @@
 		for (int c = 0; c < 3; c++) {
 			w[c] = std::async(std::launch::async, _encrypt, block + (16 * c));
 		}
+		//Delete this later
+	/*	for (size_t c = 0; c < 48; c++) {
+			std::cout << (int)block[c] << ' ';
+		} std::cout << std::endl;*/
 	}
 #pragma endregion
 
@@ -217,13 +222,22 @@
 
 	AES::AES(const char* key) {
 		if (strlen(key) != 16)
-			throw std::exception("Key length for AES must be 16.");
+			throw std::runtime_error("Key length for AES must be 16.");
 		split_key(key, first, middle, last);
 	}
 
 
 	void AES::change_key(const char* key) {
 		if (strlen(key) != 16)
-			throw std::exception("Key length for AES must be 16.");
+			throw std::runtime_error("Key length for AES must be 16.");
 		split_key(key, first, middle, last);
+	}
+
+	AES::~AES() {
+		for (size_t c = 0; c < 16; c++) {
+			for (size_t p = 0; p < 16; p++) {
+				Sbox[c][p] = 0;
+				inv_Sbox[c][p] = 0;
+			}
+		}
 	}
