@@ -12,61 +12,37 @@
 	}
 
 
-	inline void AES::bin(uint8_t num, bool* to) {
-		for (short i = 9; i >= 0; i--)
-			to[9-i] = static_cast<bool>((num >> i) & 1);
-	}
-
-
-	inline void AES::mod(bool* num, const size_t num_size, const bool* modula, const size_t mod_size) {
-		if (num_size < mod_size)
-			return;
-
-		size_t counter = 0;
-		
-		while (counter < num_size && !num[counter])
-			counter++;
-		
-		while (num_size - counter >= mod_size) {
-			for (size_t i = 0; i < mod_size; i++)
-				num[i + counter] = num[counter + i] ^ modula[i];
-
-			while (counter < num_size && !num[counter])
-				counter++;
+	inline uint8_t AES::mul(uint8_t first, uint8_t second) {
+		uint16_t r = 0;
+		for (int c = 7; c >= 0; c--) {
+			r = r << 1;
+			if ((first >> c) & 1)
+				r = r ^ second;
 		}
+		return r;
 	}
 
 
-	inline void AES::mul(const bool* first, const bool* second, bool* result) {
-		for (size_t c = 0; c < 10; c++)
-			for (size_t p = 0; p < 10; p++)
-				result[c + p] = result[c + p] ^ first[c] & second[p];
+	inline uint8_t AES::mod(uint16_t num, uint16_t modulo) {
+		int i = 15;
+		while (num >= modulo) {
+			for (; i >= 0; i--) {
+				bool tmp = (num >> i) & 1;
+				if (tmp) {
+					break;
+				}
+			}
+			num = num ^ (modulo << (i - 8));
+		}
+		return num;
 	}
 
-
-	inline uint8_t AES::dec(const bool* bin_num, const size_t size) {
-		uint8_t dec_num = 0;
-		for (size_t i = 0; i < size; i++)
-			dec_num += (1 << i) * static_cast<uint8_t>(bin_num[size - 1 - i]);
-		return dec_num;
-	}
-	
 
 	inline uint8_t AES::pol_mul(uint8_t f, uint8_t s) {
-		const size_t SIZE = 19, MOD_SIZE = 9;
-		bool binf[10], bins[10], multiplicated[SIZE];
-		constexpr bool modula[MOD_SIZE] = { 1, 0, 0, 0, 1, 1, 0, 1, 1 };
-
-		bin(f, binf);
-		bin(s, bins);
-		for (size_t c = 0; c < SIZE; c++)
-			multiplicated[c] = false;
-		mul(binf, bins, multiplicated);
-		mod(multiplicated, SIZE, modula, MOD_SIZE);
-		uint8_t result = dec(multiplicated, SIZE);
-		return result;
+		auto res = mul(f, s);
+		return mod(res, 0b100011011);
 	}
-	
+
 	
 	inline void AES::key_expansion(const char* key, uint8_t* ext_key) {
 		uint8_t Rcon[258];
@@ -142,7 +118,7 @@
 
 
 	inline void AES::mix_colums(uint8_t* state) {  //a = 3x^3 + 1x^2 + 1x^2 + 2
-		uint8_t new_state[16];
+		uint8_t new_state[16]; // 01101001  x^6 + x^5 + x^3 + 1
 		for (size_t i = 0; i < 4; i++) {
 			new_state[i] = pol_mul(2, state[i]) ^ pol_mul(3, state[i + 4]) ^ state[i + 8] ^ state[i + 12];
 			new_state[i + 4] = state[i] ^ pol_mul(2, state[i + 4]) ^ pol_mul(3, state[i + 8]) ^ state[i + 12];

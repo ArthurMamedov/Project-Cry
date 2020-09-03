@@ -71,7 +71,7 @@ void GOST28147_89::decrypt(uint8_t msg[48]) {
 inline void GOST28147_89::round(uint32_t* block32b_1, uint32_t* block32b_2, uint32_t* keys32b, uint8_t i) {
     uint32_t rnd, temp;
 
-    rnd = (*block32b_1 + keys32b[i % 8]) % UINT32_MAX;
+    rnd = (*block32b_1 + keys32b[i % 8]);
 
     rnd = substitution_table(rnd, i % 8);
 
@@ -103,8 +103,6 @@ inline void GOST28147_89::substitution_table_by_4bits(uint8_t* blocks4b, uint8_t
 
 
 inline void GOST28147_89::split_256bits_to_32bits(const char* key256b) {
-    if (strlen(key256b) != 32)
-        throw std::exception("Key size mismatch: it must be 32 bytes long.");
     size_t inc = 0;
     for (uint32_t* p32 = round_keys; p32 < round_keys + 8; ++p32) {
         for (uint8_t i = 0; i < 4; ++i)

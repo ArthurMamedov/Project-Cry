@@ -9,7 +9,6 @@ __interface cryptor {
 public:
 	void encrypt(uint8_t block[48]);
 	void decrypt(uint8_t block[48]);
-	//void change_key(const std::string& key);
 	void change_key(const char* key);
 };
 
@@ -41,10 +40,8 @@ class AES final : public cryptor {
 private:
 	uint8_t first[16], middle[9][16], last[16];
 #pragma region polynomial multiplications
-	inline void bin(uint8_t num, bool* to);
-	inline void mod(bool* num, const size_t num_size, const bool* modula, const size_t mod_size);
-	inline void mul(const bool* first, const bool* second, bool* result);
-	inline uint8_t dec(const bool* bin_num, const size_t size);
+	inline uint8_t mul(uint8_t first, uint8_t second);
+	inline uint8_t mod(uint16_t num, uint16_t modulo);
 	inline uint8_t pol_mul(uint8_t f, uint8_t s);
 #pragma endregion
 #pragma region encryption
@@ -147,12 +144,11 @@ public:
 
 class factory final {
 public:
-	static std::shared_ptr<cryptor> create(const char* encryption_algorithm, const char* key) {
-		std::string str = encryption_algorithm;
-		if (str == "GOST28147-89" || str == "gost28147-89") {
+	static std::shared_ptr<cryptor> create(const char* algorithm, const char* key) {
+		if (!strcmp(algorithm, "GOST28147-89") || !strcmp(algorithm, "gost28147-89") || !strcmp(algorithm, "GOST") || !strcmp(algorithm, "gost")) {
 			return std::make_shared<GOST28147_89>(key);
 		}
-		else if (str == "AES" || str == "aes") {
+		else if (!strcmp(algorithm, "AES") || !strcmp(algorithm, "aes")) {
 			return std::make_shared<AES>(key);
 		}
 		else {

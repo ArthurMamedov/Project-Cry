@@ -55,7 +55,7 @@ void file_cryptor::encrypt_file(const std::string& path_to_file) {
 
 void file_cryptor::decrypt_file(const std::string& path_to_file) {
 	if (path_to_file.find(".enc", path_to_file.size() - 4) == (size_t)-1)
-		throw std::exception("This file hasn't been crypted.");
+		throw std::exception(("File " + path_to_file + " hasn't been crypted.").c_str());
 	
 	std::ifstream reader(path_to_file, std::ifstream::binary | std::ifstream::in);
 	std::ofstream writer(path_to_file.substr(0, path_to_file.size() - 4), std::ofstream::binary | std::ofstream::out);
