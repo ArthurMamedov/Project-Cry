@@ -5,22 +5,42 @@
 
 
 file_cryptor::file_cryptor(const std::shared_ptr<cryptor>& cryptor, bool in_place) {
-	this->cryptint_algorithm = cryptor;
+	this->crypting_algorithm = cryptor;
 	this->in_place = in_place;
 }
 
 
 void file_cryptor::set_crypting_algorithm(const std::shared_ptr<cryptor>& cryptor) {
-	this->cryptint_algorithm = cryptor;
+	this->crypting_algorithm = cryptor;
+}
+
+
+void file_cryptor::read_flag(std::ifstream& r) {
+	uint8_t flag[49];
+	r.read((char*)flag, BLOCK_LENGTH);
+	crypting_algorithm->decrypt(flag);
+	if (strcmp((char*)flag, "ckecking_message_ckecking_message_ckecking_mess\0")) {
+		throw std::exception("Didn't manage to decrypt file. Wrong key or algorithm.");
+	}
+}
+
+
+void file_cryptor::write_flag( std::ofstream& w) {
+	uint8_t flag[49] = "ckecking_message_ckecking_message_ckecking_mess\0";
+	crypting_algorithm->encrypt(flag);
+	w.write((char*)flag, BLOCK_LENGTH);
 }
 
 
 void file_cryptor::encrypt_file(const std::string& path_to_file) {
 	std::ifstream reader(path_to_file, std::ifstream::in | std::ifstream::binary);
+
+	if (!reader.is_open())
+		throw std::exception("Didn't manage to open the file.");
+	
 	std::ofstream writer(path_to_file + ".enc", std::ofstream::out | std::ofstream::binary);
 
-	if (!reader.is_open() || !writer.is_open())
-		throw std::exception("Didn't manage to open the file.");
+	write_flag(writer);
 
 	uint8_t block[BLOCK_LENGTH];
 	bool end_file = false;
@@ -36,7 +56,7 @@ void file_cryptor::encrypt_file(const std::string& path_to_file) {
 			end_file = true;
 		}
 
-		cryptint_algorithm->encrypt(block);
+		crypting_algorithm->encrypt(block);
 
 		writer.write((char*)block, BLOCK_LENGTH);
 		if (end_file)
@@ -56,18 +76,27 @@ void file_cryptor::encrypt_file(const std::string& path_to_file) {
 void file_cryptor::decrypt_file(const std::string& path_to_file) {
 	if (path_to_file.find(".enc", path_to_file.size() - 4) == (size_t)-1)
 		throw std::exception(("File " + path_to_file + " hasn't been crypted.").c_str());
-	
-	std::ifstream reader(path_to_file, std::ifstream::binary | std::ifstream::in);
-	std::ofstream writer(path_to_file.substr(0, path_to_file.size() - 4), std::ofstream::binary | std::ofstream::out);
 
-	if (!reader.is_open() || !writer.is_open())
+	std::ifstream reader(path_to_file, std::ifstream::binary | std::ifstream::in);
+
+	if (!reader.is_open())
 		throw std::exception("Didn't manage to open the file.");
 
+	try {
+		read_flag(reader);
+	}
+	catch (std::exception& ex) {
+		reader.close();
+		throw ex;
+	}
+
+	std::ofstream writer(path_to_file.substr(0, path_to_file.size() - 4), std::ofstream::binary | std::ofstream::out);
+	
 	uint8_t block[BLOCK_LENGTH], check[2];
 
 	while (true) {
 		reader.read((char*)block, BLOCK_LENGTH);
-		cryptint_algorithm->decrypt(block);
+		crypting_algorithm->decrypt(block);
 
 		reader.read(reinterpret_cast<char*>(check), 2);
 		if (reader.gcount() == 1) {

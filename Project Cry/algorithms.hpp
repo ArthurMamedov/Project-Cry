@@ -23,7 +23,9 @@ enum class mode {
 #pragma region file cryptor
 class file_cryptor final {
 private:
-	std::shared_ptr<cryptor> cryptint_algorithm;
+	std::shared_ptr<cryptor> crypting_algorithm;
+	void read_flag(std::ifstream& r);
+	void write_flag(std::ofstream& w);
 public:
 	bool in_place;
 	file_cryptor(const std::shared_ptr<cryptor>& cryptor, bool in_place = false);

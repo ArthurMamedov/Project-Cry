@@ -10,94 +10,41 @@
 #define DEBUG
 
 
-template<typename _F, typename... _Args>
-unsigned long long take_time(_F func, _Args... args...) {
-	auto begin = clock();
-	func(args...);
-	auto end = clock() - begin;
-	return end;
-}
+std::string help =
+"\t\tWELCOM TO PROJECT CRY\n"
+"Profect Cry - is a simple file cryptor.\n"
+"Now only 2 encryption algorithm are supported: GOST28147-89 and AES.\n"
+"\n"
+"\t\tHOW to USE\n"
+"Cryptor takes 4 parameters:\n"
+"[1]: 'encrypt', 'decrypt' and 'help' options - to encrypt, decrypt file or to print help.\n"
+"[2]: file path, you would like to decrypt or encrypt.\n"
+"[3]: crypting algorithm (AES, GOST)\n"
+"[4]: key:\n"
+"\tGOST takes 32 bytes long key (example: 0123456789qwertyuiopasdfghjklzxc)\n"
+"\tAES takes 16 bytes long key (example: 0123456789abcdef)\n"
+""
+"That's all...";
 
 
-void print_array(uint8_t* array, size_t length) {
-	printf("[ ");
-	for (size_t i = 0; i < length; ++i)
-		printf("%d ", array[i]);
-	printf("]\n");
-}
 
-inline void mul(const bool* first, const bool* second, bool* result) {
-	for (size_t c = 0; c < 10; c++)
-		for (size_t p = 0; p < 10; p++)
-			result[c + p] = result[c + p] ^ first[c] & second[p];
-}
-
-
-inline void bin(uint16_t num) {
-	for (short i = 15; i >= 0; i--)
-		std::cout << ((num >> i) & 1);
-	std::cout << std::endl;
-}
-
-
-inline uint16_t upped_mul(uint8_t f, uint8_t s) {
-	uint16_t r = 0;
-	for (int c = 8; c >= 0; c--) { //invert the loop to invert the result num.
-		r = r << 1;
-		if ((f >> c) & 1)
-			r = r ^ s;
-	}
-	return r;
-}
-
-
-inline uint8_t upped_mod(uint16_t num, uint16_t modulo = 0b100011011) {
-	int i = 15;
-	while (num >= modulo) {
-		for (; i >= 0; i--) {
-			bool tmp = (num >> i) & 1;
-			if (tmp) {
-				break;
-			}
-		}
-		num = num ^ (modulo << (i - 8));
-	}
-	return num;
-}
 
 
 int main(int argc, char** argv) {
 	using namespace std;
-	
-	/*uint8_t a = 0b10010001;
-	uint8_t b = 0b00100100;
-	bin(upped_mul(a, b));*/
-
-	//uint8_t msg[49] = "Lorem Ipsum is simply dummy text of the printin";
-
-	//AES aes("0123456789abcdef");
-	//aes.encrypt(msg);
-	//aes.decrypt(msg);
-	//cout << msg << endl;
-
-
-	/*res = 0b0000000010000000;
-
-	cout << "res: " << res << endl;
-	bin(res << 1);
-	cout << "res: " << (res<<1) << endl;*/
-
-
-
 
 	//Cry encrypt file.txt AES key
-	// argv[1] = encrypt | decrypt
+	// argv[1] = encrypt | decrypt | help
 	// argv[2] = file name
 	// argv[3] = algorithm name
 	// argv[4] = key
 	HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (argc != 1 && !strcmp(argv[1], "help")) {
+		std::cout << help << std::endl;
+		return 0;
+	}
 	if (argc != 5) {
-		cout << "Here must be the instruction, but i'm too lazy to write it right now...\n";
+		cout << "Not enought arguments.\n";
 		return 0;
 	}
 	try {
