@@ -28,10 +28,10 @@ void GOST28147_89::encrypt(uint8_t msg[48]) {
         _64bits_block_to_2_32bit_blocks(msg, N1, N2);
 
         for (uint8_t c = 0; c < 24; c++)
-            round(&N1, &N2, round_keys, c);
+            round(&N1, &N2, c);
 
         for (uint8_t c = 31; c >= 24; c--)
-            round(&N1, &N2, round_keys, c);
+            round(&N1, &N2, c);
 
         _2_32bits_blocks_to_64_block(N1, N2, msg);
     };
@@ -52,10 +52,10 @@ void GOST28147_89::decrypt(uint8_t msg[48]) {
         _64bits_block_to_2_32bit_blocks(msg, N1, N2);
 
         for (uint8_t c = 0; c < 8; c++)
-            round(&N1, &N2, round_keys, c);
+            round(&N1, &N2, c);
 
         for (uint8_t c = 31; c >= 8; c--)
-            round(&N1, &N2, round_keys, c);
+            round(&N1, &N2, c);
 
         _2_32bits_blocks_to_64_block(N1, N2, msg);
     };
@@ -68,10 +68,10 @@ void GOST28147_89::decrypt(uint8_t msg[48]) {
 }
 
 
-inline void GOST28147_89::round(uint32_t* block32b_1, uint32_t* block32b_2, uint32_t* keys32b, uint8_t i) {
+inline void GOST28147_89::round(uint32_t* block32b_1, uint32_t* block32b_2, uint8_t i) {
     uint32_t rnd, temp;
 
-    rnd = (*block32b_1 + keys32b[i % 8]);
+    rnd = (*block32b_1 + round_keys[i % 8]);
 
     rnd = substitution_table(rnd, i % 8);
 

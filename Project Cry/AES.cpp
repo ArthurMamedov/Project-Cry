@@ -44,7 +44,7 @@
 	}
 
 	
-	inline void AES::key_expansion(const char* key, uint8_t* ext_key) {
+	inline void AES::key_extension(const char* key, uint8_t* ext_key) {
 		uint8_t Rcon[258];
 		Rcon[0] = 1; Rcon[257] = Rcon[256] = Rcon[255] = 0;
 
@@ -131,7 +131,7 @@
 
 	inline void AES::split_key(const char* key, uint8_t first[16], uint8_t middle[9][16], uint8_t last[16]) {
 		uint8_t ext_key[EXT_KEY_LENGTH];
-		key_expansion(key, ext_key);
+		key_extension(key, ext_key);
 		for (size_t c = 0; c < 16; c++) {
 			first[c] = ext_key[c];
 			last[c] = ext_key[160 + c];

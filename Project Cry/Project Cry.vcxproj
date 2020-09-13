@@ -152,6 +152,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AES.cpp" />
+    <ClCompile Include="BLOWFISH.cpp" />
     <ClCompile Include="file_cryptor.cpp" />
     <ClCompile Include="GOST28147-89.cpp" />
     <ClCompile Include="main.cpp" />
