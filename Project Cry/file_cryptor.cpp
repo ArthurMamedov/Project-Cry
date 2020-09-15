@@ -19,7 +19,7 @@ void file_cryptor::read_flag(std::ifstream& r) {
 	uint8_t flag[49];
 	r.read((char*)flag, BLOCK_LENGTH);
 	crypting_algorithm->decrypt(flag);
-	if (strcmp((char*)flag, "ckecking_message_ckecking_message_ckecking_mess\0")) {
+	if (strcmp((char*)flag, "ckecking_message_ckecking_message_ckecking_mess\0")) { //Not safe. Need to be changed to hash.
 		throw std::exception("Didn't manage to decrypt file. Wrong key or algorithm.");
 	}
 }

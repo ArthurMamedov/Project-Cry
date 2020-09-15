@@ -13,7 +13,7 @@
 
 
 	inline uint8_t AES::mul(uint8_t first, uint8_t second) {
-		uint16_t r = 0;
+		uint8_t r = 0;  //maybe 16 bit...
 		for (int c = 7; c >= 0; c--) {
 			r = r << 1;
 			if ((first >> c) & 1)
@@ -34,7 +34,7 @@
 			}
 			num = num ^ (modulo << (i - 8));
 		}
-		return num;
+		return static_cast<uint8_t>(num);
 	}
 
 

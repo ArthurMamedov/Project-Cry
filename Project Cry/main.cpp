@@ -2,13 +2,12 @@
 #include <string>
 #include <conio.h>
 #include <ctime>
-#include <vector>
 #include <chrono>
+#include <vector>
 #include <algorithm>
 #include <Windows.h>
 #include "algorithms.hpp"
 #define DEBUG
-#define TEST_FEATURE
 #define TAKE_TIME(func, arg, res) \
 	auto start = std::chrono::high_resolution_clock::now();\
 	func(arg);\
@@ -78,15 +77,11 @@ void bad_message(const char* param) {
 
 
 int main(int argc, char** argv) {
-	using namespace std;
-
 	//Cry encrypt file.txt AES key
 	// argv[1] = encrypt | decrypt | help
 	// argv[2] = file name
 	// argv[3] = algorithm name
 	// argv[4] = key
-
-
 
 	HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (argc != 1 && !strcmp(argv[1], "help")) {
@@ -97,38 +92,31 @@ int main(int argc, char** argv) {
 		bad_message("Not enought arguments.");
 		return 0;
 	}
-	for (size_t p = 2; p < argc - 2; p++) {
-		try {
-			file_cryptor fl(factory::create(argv[argc - 2], argv[argc - 1]));
-			if (!strcmp(argv[1], "encrypt") || !strcmp(argv[1], "ENCRYPT")) {
-#ifdef DEBUG
-				unsigned int time;
-				TAKE_TIME(fl.encrypt_file, argv[p], time);
-				good_message(argv[p], true);
+	
+	try {
+		file_cryptor fl(factory::create(argv[argc - 2], argv[argc - 1]));
+		for (int p = 2; p < argc - 2; p++) {
+			try {
+				long long time;
+				if (!strcmp(argv[1], "encrypt") || !strcmp(argv[1], "ENCRYPT")) {
+					TAKE_TIME(fl.encrypt_file, argv[p], time);
+					good_message(argv[p], true);
+				}
+				else if (!strcmp(argv[1], "decrypt") || !strcmp(argv[1], "DECRYPT")) {
+					TAKE_TIME(fl.decrypt_file, argv[p], time);
+					good_message(argv[p], false);
+				}
+				else
+					throw std::exception("Unknown mode.");
 				std::cout << "\tTime spent: " << time << std::endl;
-#else
-				fl.encrypt_file(argv[p]);
-				good_message(argv[p], true);
-#endif //DEBUG
 			}
-			else if (!strcmp(argv[1], "decrypt") || !strcmp(argv[1], "DECRYPT")) {
-#ifdef DEBUG
-				unsigned int time;
-				TAKE_TIME(fl.decrypt_file, argv[p], time);
-				good_message(argv[p], false);
-				std::cout << "\tTime spent: " << time << std::endl;
-#else
-				fl.decrypt_file(argv[p]);
-				good_message(argv[p], false);
-#endif // DEBUG
+			catch (std::exception& ex) {
+				bad_message(ex.what());
 			}
-			else
-				throw std::exception("Unknown mode.");
 		}
-		catch (std::exception& ex) {
-			cout << "COUGHT!!!" << endl;
-			bad_message(ex.what());
-		}
+	}
+	catch (std::exception& ex) {
+		bad_message(ex.what());
 	}
 
 	return 0;

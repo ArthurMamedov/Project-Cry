@@ -13,13 +13,6 @@ public:
 };
 
 
-enum class mode {
-	gamming,
-	feedback_gamming,
-	simple_raplacement
-};
-
-
 #pragma region file cryptor
 class file_cryptor final {
 private:
@@ -338,7 +331,7 @@ public:
 
 class factory final {
 public:
-	static std::shared_ptr<cryptor> create(const char* algorithm, const char* key) {
+	static std::shared_ptr<cryptor> create(const char* algorithm, const char* key) {  //TODO: throw the implementation to a separate file.
 		if (!strcmp(algorithm, "GOST28147-89") || !strcmp(algorithm, "gost28147-89") || !strcmp(algorithm, "GOST") || !strcmp(algorithm, "gost")) {
 			return std::make_shared<GOST28147_89>(key);
 		}
