@@ -19,18 +19,18 @@
 std::string help =
 "\t\tWELCOM TO PROJECT CRY\n"
 "Profect Cry - is a simple file cryptor.\n"
-"Now only 2 encryption algorithm are supported: GOST28147-89 and AES.\n"
+"Now only 3 encryption algorithm are supported: GOST28147-89, BLOWFISH and AES.\n"
 "\n"
 "\t\tHOW to USE\n"
-"Cryptor takes 4 parameters:\n"
+"Encryptor takes 4 parameters:\n"
 "[1]: 'encrypt', 'decrypt' and 'help' options - to encrypt, decrypt file or to print help.\n"
 "[2]: file path to a file, you would like to decrypt or encrypt.\n"
-"[3]: crypting algorithm (just type the name of it)\n"
+"[3]: algorithm name (for example, 'aes' or 'AES'\n"
 "[4]: key:\n"
 "\tGOST takes 32 bytes long key (example: 0123456789qwertyuiopasdfghjklzxc)\n"
 "\tAES takes 16 bytes long key (example: 0123456789abcdef)\n"
-""
-"That's all...";
+"\tBLOWFISH takes from 4 to 56 bytes. (example: 0123)"
+"For now, that's all.";
 
 
 const HANDLE COLOR = GetStdHandle(STD_OUTPUT_HANDLE);
