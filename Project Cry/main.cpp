@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <Windows.h>
+#include <immintrin.h>
 #include "algorithms.hpp"
 #define DEBUG
 #define TAKE_TIME(func, arg, res) \
@@ -73,9 +74,6 @@ void bad_message(const char* param) {
 }
 
 
-
-
-
 int main(int argc, char** argv) {
 	//Cry encrypt file.txt AES key
 	// argv[1] = encrypt | decrypt | help
@@ -83,7 +81,7 @@ int main(int argc, char** argv) {
 	// argv[3] = algorithm name
 	// argv[4] = key
 
-	HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE);
+	auto color = GetStdHandle(STD_OUTPUT_HANDLE);
 	if (argc != 1 && !strcmp(argv[1], "help")) {
 		std::cout << help << std::endl;
 		return 0;
@@ -101,16 +99,14 @@ int main(int argc, char** argv) {
 				if (!strcmp(argv[1], "encrypt") || !strcmp(argv[1], "ENCRYPT")) {
 					TAKE_TIME(fl.encrypt_file, argv[p], time);
 					good_message(argv[p], true);
-				}
-				else if (!strcmp(argv[1], "decrypt") || !strcmp(argv[1], "DECRYPT")) {
+				} else if (!strcmp(argv[1], "decrypt") || !strcmp(argv[1], "DECRYPT")) {
 					TAKE_TIME(fl.decrypt_file, argv[p], time);
 					good_message(argv[p], false);
-				}
-				else
+				} else {
 					throw std::exception("Unknown mode.");
+				}
 				std::cout << "\tTime spent: " << time << std::endl;
-			}
-			catch (std::exception& ex) {
+			} catch (std::exception& ex) {
 				bad_message(ex.what());
 			}
 		}

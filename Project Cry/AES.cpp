@@ -5,15 +5,8 @@
 
 
 #pragma region auxilary functions
-	template<typename T>
-	inline void AES::rewrite (T& msg, const std::future<void>& w, size_t i, size_t shift, uint8_t block[16]) {
-		w.wait();
-		memcpy(&msg[i + shift], block, 16);
-	}
-
-
 	inline uint8_t AES::mul(uint8_t first, uint8_t second) {
-		uint8_t r = 0;  //maybe 16 bit...
+		uint8_t r = 0;
 		for (int c = 7; c >= 0; c--) {
 			r = r << 1;
 			if ((first >> c) & 1)
@@ -61,7 +54,7 @@
 
 				rot_byte(&ext_key[c - 4], rotated);
 
-				for (size_t p = 0; p < 4; p++) {
+				for (size_t p = 0u; p < 4; p++) {
 					sub_byte(rotated[p]);
 					ext_key[c + p] = rotated[p] ^ Rcon[i / 4];
 				}
@@ -143,8 +136,6 @@
 
 
 	void AES::encrypt(uint8_t block[48]) {
-		uint8_t block1[16], block2[16], block3[16];
-		std::future<void> w1, w2, w3;
 		const auto _encrypt = [&](uint8_t block[16]) {
 			add_round_key(block, first);
 			for (size_t k = 0; k < 9; k++) {
@@ -157,19 +148,11 @@
 			shift_rows(block);
 			add_round_key(block, last);
 		};
-		for (size_t c = 0; c < 16; c++) {
-			block1[c] = block[c];
-			block2[c] = block[16 + c];
-			block3[c] = block[32 + c];
+
+		std::future<void> w[3];
+		for (int c = 0; c < 3; c++) {
+			w[c] = std::async(std::launch::async, _encrypt, block + (16 * c));
 		}
-
-		w1 = std::async(std::launch::async, _encrypt, block1);
-		w2 = std::async(std::launch::async, _encrypt, block2);
-		w3 = std::async(std::launch::async, _encrypt, block3);
-
-		rewrite(block, w1, 0, 0, block1);
-		rewrite(block, w2, 0, 16, block2);
-		rewrite(block, w3, 0, 32, block3);
 	}
 #pragma endregion
 
@@ -211,8 +194,6 @@
 
 
 	void AES::decrypt(uint8_t block[48]) {
-		uint8_t block1[16], block2[16], block3[16];
-		std::future<void> w1, w2, w3;
 		const auto _decrypt = [&](uint8_t block[16]) {
 			add_round_key(block, last);
 			inv_shift_rows(block);
@@ -225,19 +206,11 @@
 			}
 			add_round_key(block, first);
 		};
-		for (size_t c = 0; c < 16; c++) {
-			block1[c] = block[c];
-			block2[c] = block[16 + c];
-			block3[c] = block[32 + c];
+
+		std::future<void> w[3];
+		for (int c = 0; c < 3; c++) {
+			w[c] = std::async(std::launch::async, _decrypt, block + (16 * c));
 		}
-
-		w1 = std::async(std::launch::async, _decrypt, block1);
-		w2 = std::async(std::launch::async, _decrypt, block2);
-		w3 = std::async(std::launch::async, _decrypt, block3);
-
-		rewrite(block, w1, 0, 0, block1);
-		rewrite(block, w2, 0, 16, block2);
-		rewrite(block, w3, 0, 32, block3);
 	}
 #pragma endregion
 

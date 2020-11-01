@@ -9,9 +9,6 @@ inline void BLOWFISH::split_block(const uint8_t block[8], uint32_t& f, uint32_t&
 		f = (f << 8) | block[c];
 		s = (s << 8) | block[c + 4];
 	}
-#ifdef DEBUG
-	std::cout << "64: " << block << ", 32f: " << f << ", 32s: " << s << std::endl;
-#endif
 }
 
 
@@ -40,12 +37,6 @@ inline void BLOWFISH::key_extension(const char* key) {
 	xor_P_block_with_key(key, key_size);
 	key_encryption();
 	Sbox_encryption();
-
-#ifdef DEBUG
-	for (int c = 0; c < 18; c++) {
-		std::cout << P_block[c] << ' ';
-	} std::cout << std::endl;
-#endif
 }
 
 
@@ -78,13 +69,12 @@ inline void BLOWFISH::Sbox_encryption() {
 
 
 inline void BLOWFISH::round(uint32_t& block1, uint32_t& block2, const uint32_t& r_key) {
-	uint8_t buff[4];
-	const auto tmp1 = block1 ^ r_key;
-	memcpy(buff, &tmp1, 4);
-	uint32_t result = Sbox[0][buff[0]];
-	result += Sbox[1][buff[1]];
-	result ^= Sbox[2][buff[2]];
-	result += Sbox[3][buff[3]];
+	const auto res = block1 ^ r_key;
+	auto p = (uint8_t*)(&res);
+	uint32_t result = Sbox[0][p[0]];
+	result += Sbox[1][p[1]];
+	result ^= Sbox[2][p[2]];
+	result += Sbox[3][p[3]];
 	
 	auto tmp = block1;
 	block1 = result ^ block2;
@@ -97,19 +87,16 @@ void BLOWFISH::change_key(const char* new_key) {
 }
 
 
-inline void BLOWFISH::join_32b_block(uint32_t right, uint32_t left, uint8_t block[8]) {
+inline void BLOWFISH::join_32b_block(const uint32_t& right, const uint32_t& left, uint8_t block[8]) {
 	for (int c = 3; c >= 0; c--) {
-		block[c + 4] = right;
-		block[c] = left;
-		right >>= 8;
-		left >>= 8;
+		block[c + 4] = right >> (8 * (3 - c));
+		block[c] = left >> (8 * (3 - c));
 	}
 }
 
 
 void BLOWFISH::encrypt(uint8_t msg[48]) {
-	std::future<void> w[6];
-	auto f = [&](uint8_t block[8]) {
+	const auto f = [&](uint8_t block[8]) {
 		uint32_t right, left;
 
 		split_block(block, right, left);
@@ -123,17 +110,14 @@ void BLOWFISH::encrypt(uint8_t msg[48]) {
 		join_32b_block(right, left, block);
 	};
 
+	std::future<void> w[6];
 	for (size_t c = 0; c < 6; c++)
 		w[c] = std::async(std::launch::async, f, &msg[8 * c]);
-
-	for (size_t c = 0; c < 6; c++)
-		w[c].wait();
 }
 
 
 void BLOWFISH::decrypt(uint8_t msg[48]) {
-	std::future<void> w[6];
-	auto f = [&](uint8_t block[8]) {
+	const auto f = [&](uint8_t block[8]) {
 		uint32_t right, left;
 		split_block(block, right, left);
 		right ^= P_block[17];
@@ -143,12 +127,9 @@ void BLOWFISH::decrypt(uint8_t msg[48]) {
 		join_32b_block(right, left, block);
 	};
 
+	std::future<void> w[6];
 	for (size_t c = 0; c < 6; c++)
 		w[c] = std::async(std::launch::async, f, &msg[8 * c]);
-
-	for (size_t c = 0; c < 6; c++)
-		w[c].wait();
-
 }
 
 

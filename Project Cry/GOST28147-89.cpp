@@ -38,9 +38,6 @@ void GOST28147_89::encrypt(uint8_t msg[48]) {
 
     for (size_t c = 0; c < 6; c++)
         w[c] = std::async(std::launch::async, f, &msg[8 * c]);
-
-    for (size_t c = 0; c < 6; c++)
-        w[c].wait();
 }
 
 
@@ -62,9 +59,6 @@ void GOST28147_89::decrypt(uint8_t msg[48]) {
 
     for (size_t c = 0; c < 6; c++)
         w[c] = std::async(std::launch::async, f, &msg[8 * c]);
-
-    for (size_t c = 0; c < 6; c++)
-        w[c].wait();
 }
 
 

@@ -92,8 +92,6 @@ private:
 	inline void inv_mix_colums(uint8_t* state);
 	inline void inv_shift_rows(uint8_t* state);
 #pragma endregion
-	template<typename T>
-	inline void rewrite(T& msg, const std::future<void>& w, size_t i, size_t shift, uint8_t block[16]);
 public:
 	AES() = delete;
 	AES(const char* key);
@@ -319,10 +317,10 @@ private:
     inline void key_encryption();
     inline void Sbox_encryption();
     inline void round(uint32_t& block1, uint32_t& block2, const uint32_t& r_key);
-    inline void join_32b_block(uint32_t right, uint32_t left, uint8_t block[8]);
+    inline void join_32b_block(const uint32_t& right, const uint32_t& left, uint8_t block[8]);
 public:
-    void encrypt(uint8_t block[8]);
-    void decrypt(uint8_t block[8]);
+    void encrypt(uint8_t block[48]);
+    void decrypt(uint8_t block[48]);
     void change_key(const char* new_key);
     BLOWFISH(const char* key);
 };
